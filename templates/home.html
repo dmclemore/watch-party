@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row my-3">
+
+    <aside class="col-3">
+        <div class="card user-card">
+        <div>
+            <!-- <div class="image-wrapper">
+            <img src="{{ g.user.header_image_url }}" alt="" class="card-hero">
+            </div> -->
+            <a href="/users/{{ g.user.username }}" class="card-link">
+            <img src="{{ g.user.image_url }}"
+                    class="card-image img-fluid">
+            <p>@{{ g.user.username }}</p>
+            </a>
+            <ul class="nav nav-pills">
+                <li>
+                    <p class="small">Posts</p>
+                    <h4>
+                    <a href="/users/{{ g.user.id }}/posts">-</a>
+                    </h4>
+                </li>
+                <li>
+                    <p class="small">Following</p>
+                    <h4>
+                    <a href="/users/{{ g.user.id }}/following">-</a>
+                    </h4>
+                </li>
+                <li>
+                    <p class="small">Followers</p>
+                    <h4>
+                    <a href="/users/{{ g.user.id }}/followers">-</a>
+                    </h4>
+                </li>
+            </ul>
+        </div>
+        </div>
+    </aside>
+
+    <div class="col-6">
+        <ul class="list-group">
+        {% for post in posts %}
+            <li class="list-group-item">
+            <a href="/posts/{{ post.id  }}"/>
+            <a href="/users/{{ msg.user.id }}">
+                <img src="{{ msg.user.image_url }}">
+            </a>
+            <div>
+                <a href="/users/{{ msg.user.username }}">@{{ msg.user.username }}</a>
+                <span class="text-muted">{{ post.timestamp.strftime('%d %B %Y') }}</span>
+                <p>{{ post.text }}</p>
+            </div>
+            <form method="POST" action="/users/add_like/{{ post.id }}">
+                <button class="
+                btn 
+                btn-sm 
+                {{'btn-primary' if msg.id in likes else 'btn-secondary'}}"
+                >
+                <i class="fa fa-thumbs-up"></i> 
+                </button>
+            </form>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+
+</div>
+{% endblock %}

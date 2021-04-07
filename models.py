@@ -42,8 +42,8 @@ class User(db.Model):
         default = DEFAULT_IMAGE_URL
     )
 
-    # posts = db.relationship(
-    #     "Post",
+    # chat_messages = db.relationship(
+    #     "Chat_Message",
     #     backref = "user",
     #     cascade="all, delete-orphan"
     # )
@@ -87,3 +87,31 @@ class User(db.Model):
                 return user
 
         return False
+
+# class Chat_Message(db.Model):
+
+#     __tablename__ = "chat_messages"
+
+#     id = db.Column(
+#         db.Integer,
+#         primary_key=True,
+#         autoincrement=True
+#     )
+
+#     message = db.Column(
+#         db.Text,
+#         nullable=False
+#     )
+
+#     username = db.Column(
+#         db.Text,
+#         db.ForeignKey("users.username"),
+#         nullable = False
+#     )
+
+#     def serialize(self):
+
+#         return {
+#             "username": self.username,
+#             "message": self.message
+#         }

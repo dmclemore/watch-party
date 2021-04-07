@@ -1,23 +1,28 @@
 """Flask app for Cupcakes"""
 
-from flask import Flask, render_template, flash, session, g, redirect
+from flask import Flask, render_template, flash, session, g, redirect, jsonify, request
 from models import db, connect_db, User
 from forms import LoginForm, SignupForm
 from sqlalchemy.exc import IntegrityError
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///capstone'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["SECRET_KEY"] = "this-is-secret"
+connect_db(app)
+db.create_all()
+socketio = SocketIO(app)
 
 # app.config['SQLALCHEMY_ECHO'] = True
 # from flask_debugtoolbar import DebugToolbarExtension
 # app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 # debug = DebugToolbarExtension(app)
 
-connect_db(app)
-db.create_all()
 CURR_USER = "curr_user"
+
+if __name__ == "__main__":
+    socketio.run(app)
 
 @app.before_request
 def add_user_to_g():
@@ -33,7 +38,19 @@ def add_user_to_g():
 def home():
 
     if g.user:
-        return render_template("home.html")
+        return render_template("home.html", user=g.user)
+
+    return render_template("home-anon.html")
+
+@app.route("/room")
+def my_room():
+
+    if g.user:
+        # socketio.emit("renderMessage", {
+        #     "username": "[SYSTEM]",
+        #     "message": f"{g.user.username} has connected."
+        # })
+        return render_template("my-room.html", user=g.user)
 
     return render_template("home-anon.html")
 
@@ -49,7 +66,6 @@ def login():
 
         if user:
             do_login(user)
-            flash(f"Hello, {user.username}!", "success")
             return redirect("/")
 
         flash("Invalid credentials.", 'danger')
@@ -92,6 +108,16 @@ def signup():
 # @app.route('/users/username/followers')
 # @app.route('/users/username/following')
 
+# @socketio.on('user_connected')
+# def handle_connection(json, methods=["GET", "POST"]):
+#     print("[CONNECTION]" + str(json))
+#     socketio.emit("renderMessage", json, callback=message_received)
+
+@socketio.on('send_chat')
+def handle_send_chat(json, methods=["GET", "POST"]):
+    print("[MSG RECIEVED]" + str(json))
+    socketio.emit("renderMessage", json, callback=message_received)
+
 ##### Helpers #####
 
 def do_login(user):
@@ -105,3 +131,6 @@ def do_logout():
 
     if CURR_USER in session:
         del session[CURR_USER]
+
+def message_received(methods=["GET", "POST"]):
+    print("[MESSAGE RECIEVED]")

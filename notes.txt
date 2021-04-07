@@ -11,6 +11,10 @@ TODO:
         -design friend message feed
         -add friend relationships to database
         -add message likes and comments?
+
+
+        -send client message from form to server
+        -send all other messages to other clients
     
 
 Web sockets are used for live chat rooms, use for hosting a chat and the video?

@@ -1,5 +1,24 @@
-.card-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+body {
+    background-color: #292929;
+}
+
+#video-chat-container {
+    height: 650px;
+    max-height: 650px;
+    width: 90vw;
+    margin: 15px auto;
+}
+
+#chat-form {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+}
+
+#chat-all-messages {
+    height: 617px;
+    max-height: 617px;
+    width: 95%;
+    margin: 0 auto;
+    overflow: auto;
 }

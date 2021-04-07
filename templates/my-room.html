@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row p-0" id="video-chat-container">
+    <div class="col-9 bg-dark text-light mx-1">
+        <div class="container h-75 mt-4">
+            <div id="player"></div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="container">
+                        <span class="display-4">Video Title</span><span class="display-5"> x Video Uploader</span>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="container text-right">
+                        <span class="display-4">User</span>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+    <div class="col bg-dark p-0 text-center text-light mx-1">
+        <h2>Chat</h2>
+        <div class="container text-left" id="chat-all-messages"></div>
+        <form id="chat-form">
+            <div class="input-group">
+                <input type="hidden" id="chat-user" value="{{ user.username }}">
+                <input type="text" class="form-control" placeholder="Message" id="chat-message">
+                <div class="input-group-append">
+                    <button class="btn btn-secondary" type="button" id="chat-submit">Send</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/axios/dist/axios.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script src="static/video-player.js"></script>
+<script src="static/app.js"></script>
+{% endblock %}

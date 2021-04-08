@@ -46,10 +46,6 @@ def home():
 def my_room():
 
     if g.user:
-        # socketio.emit("renderMessage", {
-        #     "username": "[SYSTEM]",
-        #     "message": f"{g.user.username} has connected."
-        # })
         return render_template("my-room.html", user=g.user)
 
     return render_template("home-anon.html")
@@ -108,14 +104,22 @@ def signup():
 # @app.route('/users/username/followers')
 # @app.route('/users/username/following')
 
-# @socketio.on('user_connected')
-# def handle_connection(json, methods=["GET", "POST"]):
-#     print("[CONNECTION]" + str(json))
-#     socketio.emit("renderMessage", json, callback=message_received)
+@socketio.on('connect')
+def handle_connection():
+    socketio.emit("renderMessage", {
+        "username": "[SYSTEM]",
+        "message": f"{session[CURR_USER]} has connected."
+    })
+
+@socketio.on('disconnect')
+def handle_disconnection():
+    socketio.emit("renderMessage", {
+        "username": "[SYSTEM]",
+        "message": f"{session[CURR_USER]} has disconnected."
+    })
 
 @socketio.on('send_chat')
 def handle_send_chat(json, methods=["GET", "POST"]):
-    print("[MSG RECIEVED]" + str(json))
     socketio.emit("renderMessage", json, callback=message_received)
 
 ##### Helpers #####

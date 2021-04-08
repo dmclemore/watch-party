@@ -3,13 +3,7 @@ const socket = io.connect("http://" + document.domain + ":" + location.port)
 $(() => {
     // Main
 
-    // socket.on("connection", () => {
-    //     socket.emit("user_connected", {data: "I'm connected!"})
-    // })
-
     socket.on("renderMessage", (data) => {
-        // SOCKET DEBUG
-        // console.log(data)
         if (typeof data.username !== "undefined" && data.message !== "") {
             const newMessage = $(generateChatMessageHTML(data))
             $("#chat-all-messages").append(newMessage)

@@ -3,19 +3,34 @@
 {% block content %}
 <div class="row p-0" id="video-chat-container">
     <div class="col-9 bg-dark text-light mx-1">
-        <div class="container h-75 mt-4">
+        <div class="container h-75 mt-4" id="playerContainer">
             <div id="player"></div>
         </div>
         <div class="container">
             <div class="row">
                 <div class="col">
                     <div class="container">
-                        <span class="display-4">Video Title</span><span class="display-5"> x Video Uploader</span>
+                        <br>
+                        <span class="display-5"><u>Picked By:</u></span>
+                        <br>
+                        <span class="display-4 text-danger">{{ user.username }}</span>
                     </div>
                 </div>
                 <div class="col">
                     <div class="container text-right">
-                        <span class="display-4">User</span>
+                        <br>
+                        <span class="display-5"><u>Suggest Next Video:</u></span>
+                        <br>
+                        <br>
+                        <form id="nextVideoForm">
+                            <div class="input-group">
+                                <input type="hidden" id="nextVideoUser" value="{{ user.username }}">
+                                <input type="text" class="form-control" placeholder="Youtube Video URL" id="nextVideo">
+                                <div class="input-group-append">
+                                    <button class="btn btn-danger" type="button" id="nextVideoSubmit">Queue</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -29,7 +44,7 @@
                 <input type="hidden" id="chat-user" value="{{ user.username }}">
                 <input type="text" class="form-control" placeholder="Message" id="chat-message">
                 <div class="input-group-append">
-                    <button class="btn btn-secondary" type="button" id="chat-submit">Send</button>
+                    <button class="btn btn-danger" type="button" id="chat-submit">Send</button>
                 </div>
             </div>
         </form>

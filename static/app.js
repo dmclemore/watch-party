@@ -1,3 +1,4 @@
+const API_KEY = "AIzaSyC41i0e4xqeXcovjteNG1_l6u_i_FPRu-Q"
 const socket = io.connect("http://" + document.domain + ":" + location.port)
 
 $(() => {
@@ -12,6 +13,9 @@ $(() => {
 
     $("#chat-form").on("submit", handleChatMessage)
     $("#chat-submit").on("click", handleChatMessage)
+
+    $("#nextVideoForm").on("submit", handleVideoSubmit)
+    $("#nextVideoSubmit").on("click", handleVideoSubmit)
 })
 
 async function handleChatMessage(evt){
@@ -33,8 +37,20 @@ async function handleChatMessage(evt){
 function generateChatMessageHTML(message){
     return `
         <p>
-            <span class="font-weight-bold text-primary">${message.username}: </span>${message.message}
+            <span class="font-weight-bold text-danger">${message.username}: </span>${message.message}
         </p>
     `
+}
+
+function handleVideoSubmit(evt){
+
+    evt.preventDefault()
+    username = $("#nextVideoUser").val()
+    url = $("#nextVideo").val()
+    socket.emit("send_chat", {
+        username: "[SYSTEM]",
+        message: `${username} queued a video!`
+    })
+    $("#nextVideoForm").trigger("reset")
 }
 

@@ -3,8 +3,7 @@ body {
 }
 
 #video-chat-container {
-    height: 650px;
-    max-height: 650px;
+    height: 81vh;
     width: 90vw;
     margin: 15px auto;
 }
@@ -16,8 +15,7 @@ body {
 }
 
 #chat-all-messages {
-    height: 617px;
-    max-height: 617px;
+    height: 81vh;
     width: 95%;
     margin: 0 auto;
     overflow: auto;

@@ -43,12 +43,19 @@ def home():
     return render_template("home-anon.html")
 
 @app.route("/room")
-def my_room():
+def room():
 
     if g.user:
-        return render_template("my-room.html", user=g.user)
+        return render_template("room.html", user=g.user)
 
     return render_template("home-anon.html")
+
+# @app.route("/messages")
+# def messages():
+
+
+############### LOGIN/LOGOUT/SIGNUP ###############
+
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
@@ -100,9 +107,9 @@ def signup():
 
     return render_template("users/signup.html", form=form)
 
-# @app.route('/users/username/posts')
-# @app.route('/users/username/followers')
-# @app.route('/users/username/following')
+
+############### SOCKET EVENTS ###############
+
 
 @socketio.on('connect')
 def handle_connection():
@@ -122,7 +129,9 @@ def handle_disconnection():
 def handle_send_chat(json, methods=["GET", "POST"]):
     socketio.emit("renderMessage", json, callback=message_received)
 
-##### Helpers #####
+
+############### HELPERS ###############
+
 
 def do_login(user):
     """Log in user."""

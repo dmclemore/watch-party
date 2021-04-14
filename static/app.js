@@ -1,10 +1,9 @@
 const API_KEY = "AIzaSyC41i0e4xqeXcovjteNG1_l6u_i_FPRu-Q";
 // const socket = io.connect("http://" + document.domain + ":" + location.port);
-const socket = io.connect("/");
 const roomId = $("#roomId").val();
-// const socket = io.connect(
-//     f`https://capstone-watch-party.herokuapp.com/room/${roomId}`
-// );
+const socket = io.connect(
+    f`http://capstone-watch-party.herokuapp.com/room/${roomId}`
+);
 
 $(() => {
     // Main

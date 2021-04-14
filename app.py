@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "this-is-secret")
 connect_db(app)
-db.create_all()
+# db.create_all()
 socketio = SocketIO(app)
 
 # app.config['SQLALCHEMY_ECHO'] = True

@@ -24,6 +24,7 @@ CURR_USER = "curr_user"
 if __name__ == "__main__":
     socketio.run(app)
 
+
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
@@ -34,6 +35,7 @@ def add_user_to_g():
     else:
         g.user = None
 
+
 @app.route("/")
 def home():
 
@@ -42,8 +44,9 @@ def home():
 
     return render_template("home-anon.html")
 
-@app.route("/room")
-def room():
+
+@app.route("/room/<room_id>")
+def room(room_id):
 
     if g.user:
         return render_template("room.html", user=g.user)
@@ -84,6 +87,7 @@ def logout():
     flash("Goodbye!", "success")
     return redirect("/")
 
+
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
     """Handle user login."""
@@ -93,9 +97,9 @@ def signup():
     if form.validate_on_submit():
         try:
             user = User.signup(form.username.data,
-                                form.password.data,
-                                form.first_name.data,
-                                form.last_name.data)
+                               form.password.data,
+                               form.first_name.data,
+                               form.last_name.data)
             db.session.commit()
             do_login(user)
             flash(f"Welcome to WatchParty!", "success")
@@ -118,6 +122,7 @@ def handle_connection():
         "message": f"{session[CURR_USER]} has connected."
     })
 
+
 @socketio.on('disconnect')
 def handle_disconnection():
     socketio.emit("renderMessage", {
@@ -125,9 +130,11 @@ def handle_disconnection():
         "message": f"{session[CURR_USER]} has disconnected."
     })
 
+
 @socketio.on('send_chat')
 def handle_send_chat(json, methods=["GET", "POST"]):
-    socketio.emit("renderMessage", json, callback=message_received)
+    socketio.emit("renderMessage",
+                  json, callback=message_received)
 
 
 ############### HELPERS ###############
@@ -144,6 +151,7 @@ def do_logout():
 
     if CURR_USER in session:
         del session[CURR_USER]
+
 
 def message_received(methods=["GET", "POST"]):
     print("[MESSAGE RECIEVED]")

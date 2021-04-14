@@ -1,7 +1,45 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container text-light">
-    <h1>This is your homepage {{user.username}}</h1>
+<div class="container">
+    <div class="conatiner bg-dark text-light mt-4 p-4 row">
+        <span class="col">Chat Room Name</span>
+        <span class="col">0/10 People</span>
+        <form action="/room/chatOne">
+            <button class="joinBtn btn btn-danger">Join</button>
+        </form>
+    </div>
+    <div class="conatiner bg-dark text-light mt-4 p-4 row">
+        <span class="col">Chat Room Name</span>
+        <span class="col">0/10 People</span>
+        <form action="/room/chatTwo">
+            <button class="joinBtn btn btn-danger">Join</button>
+        </form>
+    </div>
+    <div class="conatiner bg-dark text-light mt-4 p-4 row">
+        <span class="col">Chat Room Name</span>
+        <span class="col">0/10 People</span>
+        <form action="/room/chatThree">
+            <button class="joinBtn btn btn-danger">Join</button>
+        </form>
+    </div>
+    <div class="conatiner bg-dark text-light mt-4 p-4 row">
+        <span class="col">Chat Room Name</span>
+        <span class="col">0/10 People</span>
+        <form action="/room/chatFour">
+            <button class="joinBtn btn btn-danger">Join</button>
+        </form>
+    </div>
+    <div class="conatiner bg-dark text-light mt-4 p-4 row">
+        <span class="col">Chat Room Name</span>
+        <span class="col">0/10 People</span>
+        <form action="/room/chatFive">
+            <button class="joinBtn btn btn-danger">Join</button>
+        </form>
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 {% endblock %}

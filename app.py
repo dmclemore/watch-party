@@ -8,7 +8,8 @@ from flask_socketio import SocketIO
 import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///capstone'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    "DATABASE_URL", "postgresql:///capstone")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "this-is-secret")
 connect_db(app)

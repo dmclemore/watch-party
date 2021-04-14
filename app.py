@@ -5,11 +5,12 @@ from models import db, connect_db, User
 from forms import LoginForm, SignupForm
 from sqlalchemy.exc import IntegrityError
 from flask_socketio import SocketIO
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///capstone'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config["SECRET_KEY"] = "this-is-secret"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "this-is-secret")
 connect_db(app)
 db.create_all()
 socketio = SocketIO(app)

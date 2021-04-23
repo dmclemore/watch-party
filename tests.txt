@@ -1,3 +1,0 @@
-models
-    users
-        check username uniqueness

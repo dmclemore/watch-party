@@ -5,11 +5,13 @@ bcrypt = Bcrypt()
 db = SQLAlchemy()
 DEFAULT_IMAGE_URL = "https://www.freeiconspng.com/uploads/icon-user-blue-symbol-people-person-generic--public-domain--21.png"
 
+
 def connect_db(app):
     """Connect the database to the given Flask app"""
 
     db.app = app
     db.init_app(app)
+
 
 class User(db.Model):
     """User model"""
@@ -18,33 +20,33 @@ class User(db.Model):
 
     username = db.Column(
         db.String(20),
-        primary_key = True
+        primary_key=True
     )
 
     password = db.Column(
         db.Text,
         nullable=False
     )
-    
+
     first_name = db.Column(
         db.Text,
-        nullable = False
+        nullable=False
     )
 
     last_name = db.Column(
         db.Text,
-        nullable = False
+        nullable=False
     )
 
     image_url = db.Column(
         db.Text,
-        nullable = False,
-        default = DEFAULT_IMAGE_URL
+        nullable=False,
+        default=DEFAULT_IMAGE_URL
     )
 
-    # chat_messages = db.relationship(
-    #     "Chat_Message",
-    #     backref = "user",
+    # messages = db.relationship(
+    #     "Message",
+    #     backref="user",
     #     cascade="all, delete-orphan"
     # )
 
@@ -56,7 +58,7 @@ class User(db.Model):
     @property
     def full_name(self):
         """Returns the user's full name"""
-        
+
         return f"{self.first_name} {self.last_name}"
 
     @classmethod
@@ -87,31 +89,3 @@ class User(db.Model):
                 return user
 
         return False
-
-# class Chat_Message(db.Model):
-
-#     __tablename__ = "chat_messages"
-
-#     id = db.Column(
-#         db.Integer,
-#         primary_key=True,
-#         autoincrement=True
-#     )
-
-#     message = db.Column(
-#         db.Text,
-#         nullable=False
-#     )
-
-#     username = db.Column(
-#         db.Text,
-#         db.ForeignKey("users.username"),
-#         nullable = False
-#     )
-
-#     def serialize(self):
-
-#         return {
-#             "username": self.username,
-#             "message": self.message
-#         }

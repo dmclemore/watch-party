@@ -4,7 +4,7 @@ from flask import Flask, render_template, flash, session, g, redirect, jsonify, 
 from models import db, connect_db, User
 from forms import LoginForm, SignupForm
 from sqlalchemy.exc import IntegrityError
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room, leave_room
 import os
 
 app = Flask(__name__)
@@ -21,6 +21,14 @@ socketio = SocketIO(app)
 # debug = DebugToolbarExtension(app)
 
 CURR_USER = "curr_user"
+CURR_ROOM = "curr_room"
+room_pop = {
+    "roomOne": 0,
+    "roomTwo": 0,
+    "roomThree": 0,
+    "roomFour": 0,
+    "roomFive": 0
+}
 
 if __name__ == "__main__":
     socketio.run(app)
@@ -40,23 +48,19 @@ def add_user_to_g():
 @app.route("/")
 def home():
 
-    if g.user:
-        return render_template("home.html", user=g.user)
+    if not g.user:
+        return render_template("home-anon.html")
 
-    return render_template("home-anon.html")
+    return render_template("home.html", user=g.user, roomPop=room_pop)
 
 
 @app.route("/room/<room_id>")
 def room(room_id):
 
-    if g.user:
-        return render_template("room.html", user=g.user, roomId=room_id)
+    if not g.user:
+        return render_template("home-anon.html")
 
-    return render_template("home-anon.html")
-
-# @app.route("/messages")
-# def messages():
-
+    return render_template("room.html", user=g.user, roomId=room_id)
 
 ############### LOGIN/LOGOUT/SIGNUP ###############
 
@@ -115,27 +119,34 @@ def signup():
 
 ############### SOCKET EVENTS ###############
 
-
-@socketio.on('connect')
-def handle_connection():
+@socketio.on("join")
+def handle_room_join(data):
+    session[CURR_ROOM] = data["room"]
+    join_room(session[CURR_ROOM])
+    room_pop[session[CURR_ROOM]] += 1
     socketio.emit("renderMessage", {
         "username": "[SYSTEM]",
         "message": f"{session[CURR_USER]} has connected."
-    })
+    }, to=session[CURR_ROOM])
 
 
-@socketio.on('disconnect')
+@socketio.on("disconnect")
 def handle_disconnection():
     socketio.emit("renderMessage", {
         "username": "[SYSTEM]",
         "message": f"{session[CURR_USER]} has disconnected."
-    })
+    }, to=session[CURR_ROOM])
+    if room_pop[session[CURR_ROOM]] > 0:
+        room_pop[session[CURR_ROOM]] -= 1
+    leave_room(session[CURR_ROOM])
+    if CURR_ROOM in session:
+        del session[CURR_ROOM]
 
 
-@socketio.on('send_chat')
+@socketio.on("send_chat")
 def handle_send_chat(json, methods=["GET", "POST"]):
     socketio.emit("renderMessage",
-                  json, callback=message_received)
+                  json, callback=message_received, to=session[CURR_ROOM])
 
 
 ############### HELPERS ###############

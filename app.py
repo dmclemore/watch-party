@@ -1,8 +1,6 @@
-"""Flask app for Cupcakes"""
-
 from flask import Flask, render_template, flash, session, g, redirect, jsonify, request
-from models import db, connect_db, User
-from forms import LoginForm, SignupForm
+from models import db, connect_db, User, Room
+from forms import LoginForm, SignupForm, NewRoomForm, RoomForm
 from sqlalchemy.exc import IntegrityError
 from flask_socketio import SocketIO, join_room, leave_room
 import os
@@ -22,13 +20,6 @@ socketio = SocketIO(app)
 
 CURR_USER = "curr_user"
 CURR_ROOM = "curr_room"
-room_pop = {
-    "roomOne": 0,
-    "roomTwo": 0,
-    "roomThree": 0,
-    "roomFour": 0,
-    "roomFive": 0
-}
 
 if __name__ == "__main__":
     socketio.run(app)
@@ -51,16 +42,81 @@ def home():
     if not g.user:
         return render_template("home-anon.html")
 
-    return render_template("home.html", user=g.user, roomPop=room_pop)
+    rooms = Room.query.all()
+
+    return render_template("home.html", user=g.user, rooms=rooms)
+
+
+@app.route("/room/new", methods=["GET", "POST"])
+def new_room():
+    """Show the new room form. On submit, create and go to the new room."""
+
+    # If no one is logged in, show the anon home page.
+    if not g.user:
+        return render_template("home-anon.html")
+
+    form = NewRoomForm()
+
+    # If conditional will return true when the form submits a response
+    if form.validate_on_submit():
+        try:
+            if form.password.data:
+                room = Room.create(
+                    id=form.id.data,
+                    owner=g.user.username,
+                    password=form.password.data,
+                    is_private=True,
+                )
+            else:
+                room = Room.create(
+                    id=form.id.data,
+                    owner=g.user.username
+                )
+            db.session.commit()
+            return redirect(f"/room/{room.id}")
+
+        except IntegrityError:
+            flash("Room Name already taken", "danger")
+            return render_template("/room/new-room.html", form=form)
+
+        except:
+            flash("Something went wrong. Try again!", "danger")
+            return render_template("/room/new-room.html", form=form)
+
+    return render_template("/room/new-room.html", form=form)
 
 
 @app.route("/room/<room_id>")
 def room(room_id):
+    """Show the room with name of room_id."""
 
     if not g.user:
         return render_template("home-anon.html")
 
-    return render_template("room.html", user=g.user, roomId=room_id)
+    room = Room.query.filter_by(id=f"{room_id}").first()
+
+    return render_template("/room/room.html", user=g.user, roomId=room_id)
+
+
+@app.route("/room/<room_id>/password", methods=["GET", "POST"])
+def room_password(room_id):
+    """Show the password form. Authenticate the password for the room with id of room_id."""
+
+    # If no one is logged in, show the anon home page.
+    if not g.user:
+        return render_template("home-anon.html")
+
+    form = RoomForm()
+
+    # If conditional will return true when the form submits a response
+    if form.validate_on_submit():
+        room = Room.authenticate(id=room_id, password=form.password.data)
+        if room:
+            return redirect(f"/room/{room.id}")
+
+        flash("Invalid credentials.", 'danger')
+
+    return render_template("/room/password.html", form=form)
 
 ############### LOGIN/LOGOUT/SIGNUP ###############
 
@@ -102,9 +158,7 @@ def signup():
     if form.validate_on_submit():
         try:
             user = User.signup(form.username.data,
-                               form.password.data,
-                               form.first_name.data,
-                               form.last_name.data)
+                               form.password.data)
             db.session.commit()
             do_login(user)
             flash(f"Welcome to WatchParty!", "success")
@@ -123,30 +177,75 @@ def signup():
 def handle_room_join(data):
     session[CURR_ROOM] = data["room"]
     join_room(session[CURR_ROOM])
-    room_pop[session[CURR_ROOM]] += 1
-    socketio.emit("renderMessage", {
-        "username": "[SYSTEM]",
-        "message": f"{session[CURR_USER]} has connected."
+
+    # Change the room's population in the database.
+    room = Room.query.filter_by(id=session[CURR_ROOM]).first()
+    room.population += 1
+    db.session.commit()
+
+    # can only do one socket emit.
+
+    socketio.emit("setCurrentVideo", {
+        "url": room.current_video
     }, to=session[CURR_ROOM])
+
+    # socketio.emit("renderMessage", {
+    #     "username": "[SYSTEM]",
+    #     "message": f"{session[CURR_USER]} has connected."
+    # }, to=session[CURR_ROOM])
 
 
 @socketio.on("disconnect")
 def handle_disconnection():
+    """Handle the socket disconnection event."""
+
+    # Emit a disconnection message to the user's current room chat.
     socketio.emit("renderMessage", {
         "username": "[SYSTEM]",
         "message": f"{session[CURR_USER]} has disconnected."
     }, to=session[CURR_ROOM])
-    if room_pop[session[CURR_ROOM]] > 0:
-        room_pop[session[CURR_ROOM]] -= 1
+
+    # Change the room's population in the database.
+    room = Room.query.filter_by(id=session[CURR_ROOM]).first()
+    room.population -= 1
+    if room.population == 0 and room.id != "general":
+        db.session.delete(room)
+    db.session.commit()
+
+    # Remove the socket from the room, and remove the room from the session.
     leave_room(session[CURR_ROOM])
     if CURR_ROOM in session:
         del session[CURR_ROOM]
 
 
 @socketio.on("send_chat")
-def handle_send_chat(json, methods=["GET", "POST"]):
-    socketio.emit("renderMessage",
-                  json, callback=message_received, to=session[CURR_ROOM])
+def handle_send_chat(data):
+    """Handle the socket send_chat event."""
+
+    # Call the client-side renderMessage socket event. Will relay the message data.
+    socketio.emit("renderMessage", data, to=session[CURR_ROOM])
+
+
+@socketio.on("next_video")
+def handle_next_video(data):
+    room = Room.query.filter_by(id=session[CURR_ROOM]).first()
+    # room.current_video = data["url"]
+    socketio.emit("nextVideo", data, to=session[CURR_ROOM])
+
+
+@socketio.on("play_video")
+def handle_play_video():
+    socketio.emit("playVideo", to=session[CURR_ROOM])
+
+
+@socketio.on("stop_video")
+def handle_stop_video():
+    socketio.emit("stopVideo", to=session[CURR_ROOM])
+
+
+@socketio.on("sync_video")
+def handle_sync_video(data):
+    socketio.emit("syncVideo", data, to=session[CURR_ROOM])
 
 
 ############### HELPERS ###############
@@ -155,15 +254,13 @@ def handle_send_chat(json, methods=["GET", "POST"]):
 def do_login(user):
     """Log in user."""
 
+    # Add user to session
     session[CURR_USER] = user.username
 
 
 def do_logout():
     """Logout user."""
 
+    # Remove user from session
     if CURR_USER in session:
         del session[CURR_USER]
-
-
-def message_received(methods=["GET", "POST"]):
-    print("[MESSAGE RECIEVED]")

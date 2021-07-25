@@ -3,7 +3,6 @@ from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
-DEFAULT_IMAGE_URL = "https://www.freeiconspng.com/uploads/icon-user-blue-symbol-people-person-generic--public-domain--21.png"
 
 
 def connect_db(app):
@@ -28,50 +27,21 @@ class User(db.Model):
         nullable=False
     )
 
-    first_name = db.Column(
-        db.Text,
-        nullable=False
+    rooms = db.relationship(
+        "Room",
+        backref="creator",
+        cascade="all, delete-orphan"
     )
-
-    last_name = db.Column(
-        db.Text,
-        nullable=False
-    )
-
-    image_url = db.Column(
-        db.Text,
-        nullable=False,
-        default=DEFAULT_IMAGE_URL
-    )
-
-    # messages = db.relationship(
-    #     "Message",
-    #     backref="user",
-    #     cascade="all, delete-orphan"
-    # )
-
-    def __repr__(self):
-        """Return a clear representation of the user"""
-
-        return self.full_name
-
-    @property
-    def full_name(self):
-        """Returns the user's full name"""
-
-        return f"{self.first_name} {self.last_name}"
 
     @classmethod
-    def signup(cls, username, password, first_name, last_name):
+    def signup(cls, username, password):
         """Sign up user. Hashes password and adds user to system."""
 
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
 
         user = User(
             username=username,
-            password=hashed_pwd,
-            first_name=first_name,
-            last_name=last_name
+            password=hashed_pwd
         )
 
         db.session.add(user)
@@ -87,5 +57,76 @@ class User(db.Model):
             is_auth = bcrypt.check_password_hash(user.password, password)
             if is_auth:
                 return user
+
+        return False
+
+
+class Room(db.Model):
+    """Chat Room model"""
+
+    __tablename__ = "rooms"
+
+    id = db.Column(
+        db.String(20),
+        primary_key=True
+    )
+
+    password = db.Column(
+        db.Text
+    )
+
+    population = db.Column(
+        db.Integer,
+        default=0
+    )
+
+    is_private = db.Column(
+        db.Boolean,
+        nullable=False
+    )
+
+    current_video = db.Column(
+        db.Text
+    )
+
+    owner = db.Column(
+        db.Text,
+        db.ForeignKey("users.username"),
+        nullable=False
+    )
+
+    @classmethod
+    def create(cls, id, owner, password=None, is_private=False):
+        """Creates a Room. If there's a password, hashes password."""
+
+        if password is not None:
+            hashed_pwd = bcrypt.generate_password_hash(
+                password).decode('UTF-8')
+            room = Room(
+                id=id.lower(),
+                owner=owner,
+                password=hashed_pwd,
+                is_private=is_private
+            )
+        else:
+            room = Room(
+                id=id.lower(),
+                owner=owner,
+                is_private=is_private
+            )
+
+        db.session.add(room)
+        return room
+
+    @classmethod
+    def authenticate(cls, id, password):
+        """Check for valid room id & password combo"""
+
+        room = cls.query.filter_by(id=id).first()
+
+        if room:
+            is_auth = bcrypt.check_password_hash(room.password, password)
+            if is_auth:
+                return room
 
         return False

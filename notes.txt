@@ -1,5 +1,6 @@
-How to start video at the same time?
-    -player.cueVideoById wont start video until playVideo or seekTo is called
-    -player.getPlayerState checks the state of the video. Unstarted, ended, playing, paused, buffering, cued
-
-How to check videos stay in sync?
+FINAL TO DO:
+get current video from database when joining room
+list chat commands
+fix room populations?
+cap room populations
+tests tests tests

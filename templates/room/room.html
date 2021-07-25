@@ -14,7 +14,7 @@
                         <br>
                         <span class="display-5"><u>Picked By:</u></span>
                         <br>
-                        <span class="display-4 text-danger">{{ user.username }}</span>
+                        <span class="display-4 text-danger" id="videoUser"></span>
                     </div>
                 </div>
                 <div class="col">
@@ -55,6 +55,5 @@
 
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-<script src="/static/video-player.js"></script>
 <script src="/static/app.js"></script>
 {% endblock %}

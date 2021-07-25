@@ -1,6 +1,0 @@
-FINAL TO DO:
-get current video from database when joining room
-list chat commands
-fix room populations?
-cap room populations
-tests tests tests

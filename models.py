@@ -86,7 +86,8 @@ class Room(db.Model):
     )
 
     current_video = db.Column(
-        db.Text
+        db.Text,
+        default="5qap5aO4i9A"
     )
 
     owner = db.Column(

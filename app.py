@@ -95,7 +95,7 @@ def room(room_id):
 
     room = Room.query.filter_by(id=f"{room_id}").first()
 
-    return render_template("/room/room.html", user=g.user, roomId=room_id)
+    return render_template("/room/room.html", user=g.user, roomId=room_id, room=room)
 
 
 @app.route("/room/<room_id>/password", methods=["GET", "POST"])
@@ -171,7 +171,29 @@ def signup():
     return render_template("users/signup.html", form=form)
 
 
+############### API ROUTES ###############
+
+
+@app.route('/api/<room_id>/current')
+def get_current_video(room_id):
+    """Get the rooms current video."""
+
+    current_video = Room.query.filter_by(id=f"{room_id}").first().current_video
+    return jsonify(current_video=current_video)
+
+
+@app.route("/api/<room_id>/current", methods=["POST"])
+def set_current_video(room_id):
+    """Set the rooms current video."""
+
+    video = request.json["video"]
+    room = Room.query.filter_by(id=f"{room_id}").first()
+    room.current_video = video
+    db.session.commit()
+    return (jsonify(current_video=room.current_video), 201)
+
 ############### SOCKET EVENTS ###############
+
 
 @socketio.on("join")
 def handle_room_join(data):

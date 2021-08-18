@@ -1,5 +1,6 @@
 body {
     background-color: #292929;
+    overflow-y: hidden;
 }
 
 #video-chat-container {
@@ -17,7 +18,7 @@ body {
 #chat-all-messages {
     height: 81vh;
     width: 95%;
-    margin: 0 auto;
+    margin: 0 auto 25px;
     overflow: auto;
 }
 
@@ -35,4 +36,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+small {
+    margin: 0;
+}
+
+hr {
+    margin: 3px;
+}
+
+h2 {
+    margin: 3px;
 }

@@ -1,6 +1,18 @@
 FINAL TO DO:
-get current video from database when joining room
-list chat commands
-fix room populations?
-cap room populations
+video picked by on room join
 tests tests tests
+chat message overflow not correct. cant see most recent message.
+get rid of text suggestion on chat
+
+
+
+Future Implementations:
+Sync video timestamp on room join
+    -currently timestamps are held on clientside.
+
+
+
+Known Bugs:
+-Room populations
+    -Room populations fail to decrease when sockets disconnect improperly.
+    -Room populations don't update quick enough and require additional page refresh.

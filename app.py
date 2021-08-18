@@ -200,21 +200,14 @@ def handle_room_join(data):
     session[CURR_ROOM] = data["room"]
     join_room(session[CURR_ROOM])
 
-    # Change the room's population in the database.
     room = Room.query.filter_by(id=session[CURR_ROOM]).first()
     room.population += 1
     db.session.commit()
 
-    # can only do one socket emit.
-
-    socketio.emit("setCurrentVideo", {
-        "url": room.current_video
+    socketio.emit("renderMessage", {
+        "username": "[SYSTEM]",
+        "message": f'{session[CURR_USER]} has connected.'
     }, to=session[CURR_ROOM])
-
-    # socketio.emit("renderMessage", {
-    #     "username": "[SYSTEM]",
-    #     "message": f"{session[CURR_USER]} has connected."
-    # }, to=session[CURR_ROOM])
 
 
 @socketio.on("disconnect")
@@ -251,7 +244,8 @@ def handle_send_chat(data):
 @socketio.on("next_video")
 def handle_next_video(data):
     room = Room.query.filter_by(id=session[CURR_ROOM]).first()
-    # room.current_video = data["url"]
+    room.current_video = data["id"]
+    db.session.commit()
     socketio.emit("nextVideo", data, to=session[CURR_ROOM])
 
 

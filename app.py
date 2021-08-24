@@ -38,6 +38,7 @@ def add_user_to_g():
 
 @app.route("/")
 def home():
+    """If we're logged in, show the home page with a list of all chat rooms."""
 
     if not g.user:
         return render_template("home-anon.html")

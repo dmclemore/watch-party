@@ -1,15 +1,12 @@
 FINAL TO DO:
-video picked by on room join
 tests tests tests
-chat message overflow not correct. cant see most recent message.
-get rid of text suggestion on chat
-
 
 
 Future Implementations:
 Sync video timestamp on room join
     -currently timestamps are held on clientside.
-
+Get video picked by on room join
+    -currently held on clientside
 
 
 Known Bugs:

@@ -4,7 +4,6 @@ body {
 }
 
 #video-chat-container {
-    height: 81vh;
     width: 90vw;
     margin: 15px auto;
 }
@@ -16,13 +15,14 @@ body {
 }
 
 #chat-all-messages {
-    height: 81vh;
+    height: 80vh;
     width: 95%;
-    margin: 0 auto 25px;
+    margin: 0 auto;
+    padding-bottom: 70px;
     overflow: auto;
 }
 
-#room-form {
+#new-room-btn {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -46,6 +46,18 @@ hr {
     margin: 3px;
 }
 
-h2 {
+.row > h2 {
     margin: 3px;
+}
+
+a {
+    color: white;
+}
+
+a:hover {
+    color: red;
+}
+
+#chat-title {
+    margin-bottom: 0;
 }

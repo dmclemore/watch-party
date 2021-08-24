@@ -84,9 +84,7 @@ async function handleChatMessage(evt) {
             "!sync": Sync all chatters videos' to your timestamp.`,
         });
     }
-    $("#chat-all-messages").scrollTop(
-        $("#chat-all-messages").prop("scrollHeight")
-    );
+    $("#chat-all-messages").scrollTop($("#chat-all-messages").height());
     $("#chat-form").trigger("reset");
 }
 

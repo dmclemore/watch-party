@@ -10,11 +10,11 @@ User.query.delete()
 Room.query.delete()
 
 # Default User values
-user1 = User.signup(username="Scooby", password="password")
-user2 = User.signup(username="Astro", password="password")
+user1 = User.signup(username="Admin", password="password")
+user2 = User.signup(username="User", password="password")
 
 # General Chat
-room1 = Room.create(id="general", owner="Scooby")
+room1 = Room.create(id="general", owner="Admin")
 
 for i in (user1, user2, room1):
     db.session.add(i)

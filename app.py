@@ -13,6 +13,8 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "this-is-secret")
 connect_db(app)
 socketio = SocketIO(app)
 
+# UNCOMMENT BELOW FOR DEBUG MENU
+
 # app.config['SQLALCHEMY_ECHO'] = True
 # from flask_debugtoolbar import DebugToolbarExtension
 # app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
@@ -40,6 +42,7 @@ def add_user_to_g():
 def home():
     """If we're logged in, show the home page with a list of all chat rooms."""
 
+    # If no one is logged in, show the anon home page.
     if not g.user:
         return render_template("home-anon.html")
 
@@ -91,6 +94,7 @@ def new_room():
 def room(room_id):
     """Show the room with name of room_id."""
 
+    # If no one is logged in, show the anon home page.
     if not g.user:
         return render_template("home-anon.html")
 
@@ -128,6 +132,7 @@ def login():
 
     form = LoginForm()
 
+    # If conditional will return true when the form submits a response
     if form.validate_on_submit():
         user = User.authenticate(form.username.data,
                                  form.password.data)
@@ -156,6 +161,7 @@ def signup():
 
     form = SignupForm()
 
+    # If conditional will return true when the form submits a response
     if form.validate_on_submit():
         try:
             user = User.signup(form.username.data,
@@ -180,6 +186,7 @@ def get_current_video(room_id):
     """Get the rooms current video."""
 
     current_video = Room.query.filter_by(id=f"{room_id}").first().current_video
+
     return jsonify(current_video=current_video)
 
 
@@ -191,6 +198,7 @@ def set_current_video(room_id):
     room = Room.query.filter_by(id=f"{room_id}").first()
     room.current_video = video
     db.session.commit()
+
     return (jsonify(current_video=room.current_video), 201)
 
 ############### SOCKET EVENTS ###############
@@ -198,9 +206,12 @@ def set_current_video(room_id):
 
 @socketio.on("join")
 def handle_room_join(data):
+
+    # Add room ID to the session, and join the socket room
     session[CURR_ROOM] = data["room"]
     join_room(session[CURR_ROOM])
 
+    # Update room population
     room = Room.query.filter_by(id=session[CURR_ROOM]).first()
     room.population += 1
     db.session.commit()
@@ -213,22 +224,20 @@ def handle_room_join(data):
 
 @socketio.on("disconnect")
 def handle_disconnection():
-    """Handle the socket disconnection event."""
 
-    # Emit a disconnection message to the user's current room chat.
     socketio.emit("renderMessage", {
         "username": "[SYSTEM]",
         "message": f"{session[CURR_USER]} has disconnected."
     }, to=session[CURR_ROOM])
 
-    # Change the room's population in the database.
+    # Update room population
     room = Room.query.filter_by(id=session[CURR_ROOM]).first()
     room.population -= 1
     if room.population == 0 and room.id != "general":
         db.session.delete(room)
     db.session.commit()
 
-    # Remove the socket from the room, and remove the room from the session.
+    # Remove the socket from the room, and remove the room ID from the session.
     leave_room(session[CURR_ROOM])
     if CURR_ROOM in session:
         del session[CURR_ROOM]
@@ -236,32 +245,36 @@ def handle_disconnection():
 
 @socketio.on("send_chat")
 def handle_send_chat(data):
-    """Handle the socket send_chat event."""
 
-    # Call the client-side renderMessage socket event. Will relay the message data.
     socketio.emit("renderMessage", data, to=session[CURR_ROOM])
 
 
 @socketio.on("next_video")
 def handle_next_video(data):
+
+    # Update the room's current video
     room = Room.query.filter_by(id=session[CURR_ROOM]).first()
     room.current_video = data["id"]
     db.session.commit()
+
     socketio.emit("nextVideo", data, to=session[CURR_ROOM])
 
 
 @socketio.on("play_video")
 def handle_play_video():
+
     socketio.emit("playVideo", to=session[CURR_ROOM])
 
 
 @socketio.on("stop_video")
 def handle_stop_video():
+
     socketio.emit("stopVideo", to=session[CURR_ROOM])
 
 
 @socketio.on("sync_video")
 def handle_sync_video(data):
+
     socketio.emit("syncVideo", data, to=session[CURR_ROOM])
 
 

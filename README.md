@@ -2,6 +2,10 @@
 
 WatchParty is a live chat room app where users can watch YouTube videos together in sync. When one user pauses, everyone will pause. If one person rewinds, everyone else will too.
 
+## Production Link
+
+Currently unavailable due to issues I am having with SocketIO. I have been unable to get the sockets to work correctly on a production server. I will post the link once I am able to get things running smoothly. In the meantime, please feel free to check the app out locally.
+
 ## Motivation
 
 Growing up, I always found myself in come kind of a voice chat with friends. We would often have times where we would take a break from whatever we were doing, and have a snack or just take a breather. Those idle times were often filled with various YouTube videos. But we never really had ways to watch videos together. Modern tech like screen-sharing has since somewhat solved this problem, but I've still always felt there is space for this kind of platform.
